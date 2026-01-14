@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMPIRE QUEENS | WHITE EDITION</title>
+    <style>
+        :root {
+            /* 밝은 톤 테마 변수 */
+            --bg-color: #f8f9fa;
+            --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-pink: #ff8fab;
+            --accent-blue: #a2d2ff;
+            --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* --- 헤더 --- */
+        header {
+            text-align: center;
+            padding: 80px 20px 40px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #222;
+            margin-bottom: 10px;
+        }
+        
+        h1 span {
+            color: var(--accent-pink);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- 메인 카드 그리드 --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* '갤러리 보기' 호버 효과 */
+        .card::after {
+            content: 'View Gallery';
+            position: absolute;
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card:hover::after {
+            opacity: 1;
+            top: 50%; /* 살짝 내려오는 효과 */
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 380px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .info {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #222;
+        }
+
+        .role {
+            font-size: 0.8rem;
+            color: var(--accent-pink);
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        /* --- 갤러리 모달 (목록) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95); /* 밝은 반투명 배경 */
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title { font-size: 1.5rem; font-weight: 800; color: #222; }
+        .close-btn { 
+            font-size: 2rem; cursor: pointer; background: none; border: none; color: #333; 
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: var(--accent-pink); }
+
+        .gallery-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 4열 그리드 핵심 CSS */
+        .gallery-grid {
+            display: grid;
+            /* 무조건 4개씩 꽉 차게 */
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px;
+        }
+
+        /* 모바일에서는 2개씩 */
+        @media (max-width: 768px) {
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .gallery-item {
+            aspect-ratio: 3/4; /* 세로 비율 고정 */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: zoom-in; /* 돋보기 커서 */
+            position: relative;
+            background: #eee;
+            transition: transform 0.2s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .gallery-item img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* --- 라이트박스 (확대 보기) --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); /* 집중을 위해 어두운 배경 */
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px; right: 40px;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>QUEENS <span>OFFICIAL</span></h1>
+        <div class="subtitle">Artist Gallery & Profile</div>
+    </header>
+
+    <div class="container" id="card-container">
+        </div>
+
+    <div class="modal" id="gallery-modal">
+        <div class="modal-header">
+            <div class="modal-title" id="gallery-title">GALLERY</div>
+            <button class="close-btn" onclick="closeGallery()">&times;</button>
+        </div>
+        <div class="gallery-container">
+            <div class="gallery-grid" id="gallery-grid">
+                </div>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Zoomed Image">
+    </div>
+
+    <script>
+        // 데이터
+        const characters = [
+            { code: "Minji_.", name: "MINJI", role: "Leader / Main Rapper" },
+            { code: "Yuna_.", name: "YUNA", role: "Center / Visual" },
+            { code: "Sera_.", name: "SERA", role: "Main Dancer" },
+            { code: "Hyejin_.", name: "HYEJIN", role: "Main Vocal" },
+            { code: "Kang_.", name: "PD KANG", role: "Producer" }
+        ];
+
+        const container = document.getElementById('card-container');
+        const galleryModal = document.getElementById('gallery-modal');
+        const galleryGrid = document.getElementById('gallery-grid');
+        const galleryTitle = document.getElementById('gallery-title');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        // 카드 생성
+        characters.forEach(char => {
+            const html = `
+                <div class="card" onclick="openGallery('${char.code}', '${char.name}')">
+                    <div class="img-wrapper">
+                        <img src="https://images.httpskaha.me/IJI/${char.code}1.webp" 
+                             alt="${char.name}"
+                             onerror="this.src='https://via.placeholder.com/300x400/eee/999?text=No+Image'">
+                    </div>
+                    <div class="info">
+                        <div class="name">${char.name}</div>
+                        <span class="role">${char.role}</span>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+
+        // 갤러리 열기
+        function openGallery(code, name) {
+            galleryTitle.innerText = `${name}'s GALLERY`;
+            galleryGrid.innerHTML = ''; // 초기화
+            galleryModal.style.display = 'flex';
+
+            // 이미지 1번부터 100번까지 로드 시도
+            // (주의: 존재하는 이미지만 보여주기 위해 onerror 사용)
+            for (let i = 1; i <= 100; i++) {
+                const imgUrl = `https://images.httpskaha.me/IJI/${code}${i}.webp`;
+                
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.onclick = () => openLightbox(imgUrl); // 클릭 시 확대 함수 연결
+
+                const img = document.createElement('img');
+                img.src = imgUrl;
+                img.loading = "lazy";
+                
+                // 이미지가 없으면(404) 요소를 아예 숨겨서 그리드를 깔끔하게 유지
+                img.onerror = function() {
+                    div.style.display = 'none';
+                };
+
+                div.appendChild(img);
+                galleryGrid.appendChild(div);
+            }
+        }
+
+        function closeGallery() {
+            galleryModal.style.display = 'none';
+        }
+
+        // 라이트박스(확대) 열기
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+        }
+
+        // 라이트박스 닫기
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            setTimeout(() => { lightboxImg.src = ''; }, 300); // 닫히는 애니메이션 후 초기화
+        }
+
+        // ESC 키로 닫기 지원
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeLightbox();
+                closeGallery();
+            }
+        });
+    </script>
+</body>
+</html>
