@@ -279,11 +279,14 @@
     <script>
         // 데이터
         const characters = [
-            { code: "Minji_.", name: "MINJI", role: "Leader / Main Rapper" },
-            { code: "Yuna_.", name: "YUNA", role: "Center / Visual" },
-            { code: "Sera_.", name: "SERA", role: "Main Dancer" },
-            { code: "Hyejin_.", name: "HYEJIN", role: "Main Vocal" },
-            { code: "Kang_.", name: "PD KANG", role: "Producer" }
+            { code: "Minji_.", name: "MINJI", role: "Leader / Main Rapper", folder: "A1" },
+            { code: "Yuna_.", name: "YUNA", role: "Center / Visual", folder: "A2" },
+            { code: "Sera_.", name: "SERA", role: "Main Dancer", folder: "A4" },
+            { code: "Hyejin_.", name: "HYEJIN", role: "Main Vocal", folder: "A5" },
+            { code: "Kang_.", name: "PD KANG", role: "Producer", folder: "A3" },
+            { code: "Miyoung_.", name: "MIYOUNG", role: "Member", folder: "A6" },
+            { code: "Shin_.", name: "SHIN AYOUNG", role: "Member", folder: "A7" },
+            { code: "Han_.", name: "HAN CHAEEUN", role: "Member", folder: "A8" }
         ];
 
         const container = document.getElementById('card-container');
@@ -296,9 +299,9 @@
         // 카드 생성
         characters.forEach(char => {
             const html = `
-                <div class="card" onclick="openGallery('${char.code}', '${char.name}')">
+                <div class="card" onclick="openGallery('${char.code}', '${char.name}', '${char.folder}')">
                     <div class="img-wrapper">
-                        <img src="https://images.httpskaha.me/IJI/${char.code}1.webp" 
+                        <img src="${char.folder}/${char.code}1.webp" 
                              alt="${char.name}"
                              onerror="this.src='https://via.placeholder.com/300x400/eee/999?text=No+Image'">
                     </div>
@@ -312,7 +315,7 @@
         });
 
         // 갤러리 열기
-        function openGallery(code, name) {
+        function openGallery(code, name, folder) {
             galleryTitle.innerText = `${name}'s GALLERY`;
             galleryGrid.innerHTML = ''; // 초기화
             galleryModal.style.display = 'flex';
@@ -320,7 +323,7 @@
             // 이미지 1번부터 100번까지 로드 시도
             // (주의: 존재하는 이미지만 보여주기 위해 onerror 사용)
             for (let i = 1; i <= 100; i++) {
-                const imgUrl = `https://images.httpskaha.me/IJI/${code}${i}.webp`;
+                const imgUrl = `${folder}/${code}${i}.webp`;
                 
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
